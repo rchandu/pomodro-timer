@@ -26,7 +26,11 @@ function App() {
 
   const getProgress = (): number => {
     const status = timerStatus();
-    return ((status.total_seconds - status.remaining_seconds) / status.total_seconds) * 100;
+    return (
+      ((status.total_seconds - status.remaining_seconds) /
+        status.total_seconds) *
+      100
+    );
   };
 
   const updateStatus = async () => {
@@ -107,14 +111,14 @@ function App() {
   return (
     <main class="container">
       <h1>Pomodoro Timer</h1>
-      
+
       <div class="timer-display">
         <div class="timer-type">
           {timerStatus().timer_type === "Work" && "Work Session"}
           {timerStatus().timer_type === "ShortBreak" && "Short Break"}
           {timerStatus().timer_type === "LongBreak" && "Long Break"}
         </div>
-        
+
         <div class="timer-circle">
           <svg class="progress-ring" width="200" height="200">
             <circle
@@ -128,7 +132,9 @@ function App() {
             />
             <circle
               class="progress-ring-circle"
-              stroke={timerStatus().timer_type === "Work" ? "#ff6b6b" : "#4ecdc4"}
+              stroke={
+                timerStatus().timer_type === "Work" ? "#ff6b6b" : "#4ecdc4"
+              }
               stroke-width="8"
               fill="transparent"
               r="88"
@@ -140,31 +146,31 @@ function App() {
               transform="rotate(-90 100 100)"
             />
           </svg>
-          <div class="timer-time">{formatTime(timerStatus().remaining_seconds)}</div>
+          <div class="timer-time">
+            {formatTime(timerStatus().remaining_seconds)}
+          </div>
         </div>
-        
-        <div class="timer-state">
-          Status: {timerStatus().state}
-        </div>
+
+        <div class="timer-state">Status: {timerStatus().state}</div>
       </div>
 
       <div class="controls">
         <div class="timer-buttons">
-          <button 
+          <button
             onClick={startWorkTimer}
             disabled={timerStatus().state === "Running"}
             class="work-btn"
           >
             Work (25m)
           </button>
-          <button 
+          <button
             onClick={startShortBreak}
             disabled={timerStatus().state === "Running"}
             class="break-btn"
           >
             Short Break (5m)
           </button>
-          <button 
+          <button
             onClick={startLongBreak}
             disabled={timerStatus().state === "Running"}
             class="break-btn"
@@ -172,7 +178,7 @@ function App() {
             Long Break (15m)
           </button>
         </div>
-        
+
         <div class="control-buttons">
           {timerStatus().state === "Running" && (
             <button onClick={pauseTimer} class="pause-btn">
@@ -184,7 +190,8 @@ function App() {
               Resume
             </button>
           )}
-          {(timerStatus().state === "Running" || timerStatus().state === "Paused") && (
+          {(timerStatus().state === "Running" ||
+            timerStatus().state === "Paused") && (
             <button onClick={stopTimer} class="stop-btn">
               Stop
             </button>
