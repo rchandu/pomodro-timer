@@ -24,9 +24,7 @@
     }
   },
   "plugins": {
-    "notification": {
-      "identifier": "com.pomodro-timer.app"
-    }
+    "notification": null
   },
   "bundle": {
     "active": true,
