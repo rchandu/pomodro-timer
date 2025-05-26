@@ -9,7 +9,7 @@
       "name": "release/production"
     }
   ],
-  "tagFormat": "release/${version}",
+  "tagFormat": "v${version}",
   "preset": "conventionalcommits",
   "plugins": [
     "@semantic-release/commit-analyzer",
