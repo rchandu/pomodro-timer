@@ -16,7 +16,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "sed -i 's/\"version\": \".*\"/\"version\": \"${nextRelease.version}\"/' package.json && sed -i 's/version = \".*\"/version = \"${nextRelease.version}\"/' src-tauri/Cargo.toml"
+        "prepareCmd": "sed -i 's/\"version\": \".*\"/\"version\": \"${nextRelease.version}\"/' package.json && sed -i '/^\\[package\\]/,/^\\[/ s/^version = \".*\"/version = \"${nextRelease.version}\"/' src-tauri/Cargo.toml"
       }
     ],
     [
