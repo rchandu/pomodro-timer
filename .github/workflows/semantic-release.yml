@@ -84,8 +84,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v${{ needs.release.outputs.new_release_version }}
-          releaseName: 'Pomodoro Timer v${{ needs.release.outputs.new_release_version }}'
-          releaseBody: ${{ needs.release.outputs.new_release_notes }}
-          releaseDraft: false
-          prerelease: ${{ contains(github.ref_name, 'main') }}
           includeUpdaterJson: true
