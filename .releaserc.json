@@ -1,12 +1,15 @@
 {
   "repositoryUrl": "https://github.com/rchandu/pomodro-timer",
   "branches": [
-    "release/production",
     {
       "name": "main",
       "prerelease": "rc"
+    },
+    {
+      "name": "release/production"
     }
   ],
+  "tagFormat": "release/${version}",
   "preset": "conventionalcommits",
   "plugins": [
     "@semantic-release/commit-analyzer",
