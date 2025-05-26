@@ -13,9 +13,9 @@
     "windows": [
       {
         "title": "Pomodoro Timer",
-        "width": 400,
-        "height": 500,
-        "resizable": false,
+        "width": 450,
+        "height": 800,
+        "resizable": true,
         "center": true
       }
     ],

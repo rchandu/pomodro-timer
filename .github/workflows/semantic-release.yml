@@ -73,7 +73,7 @@ jobs:
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: './src-tauri -> target'
+          workspaces: "./src-tauri -> target"
 
       - name: Install frontend dependencies
         run: bun install
@@ -84,4 +84,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v${{ needs.release.outputs.new_release_version }}
+          releaseName: v${{ needs.release.outputs.new_release_version }}
+          releaseBody: ${{ needs.release.outputs.new_release_notes }}
+          releaseDraft: false
+          prerelease: false
           includeUpdaterJson: true

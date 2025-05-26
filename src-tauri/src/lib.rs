@@ -67,7 +67,7 @@ impl TimerManager {
         let status_clone = Arc::clone(&self.status);
         let _start_time_clone = Arc::clone(&self.start_time);
         
-        tokio::spawn(async move {
+        tauri::async_runtime::spawn(async move {
             loop {
                 sleep(Duration::from_secs(1)).await;
                 
