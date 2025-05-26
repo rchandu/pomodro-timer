@@ -2,7 +2,7 @@
 name = "pomodro-timer"
 version = "1.0.0-rc.1"
 description = "A Tauri App"
-authors = ["you"]
+authors = ["rama.chandu57@gmail.com"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -15,15 +15,15 @@ name = "pomodro_timer_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "1.0.0-rc.1", features = [] }
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "1.0.0-rc.1", features = [] }
+tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 tauri-plugin-notification = "2"
-serde = { version = "1.0.0-rc.1"] }
+serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tokio = { version = "1.0.0-rc.1"] }
+tokio = { version = "1", features = ["time", "rt-multi-thread"] }
 
 [lints.clippy]
 all = "warn"
@@ -34,4 +34,3 @@ nursery = "warn"
 unsafe_code = "forbid"
 unused_imports = "warn"
 dead_code = "warn"
-
