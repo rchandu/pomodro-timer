@@ -110,6 +110,18 @@ bun run format:rust:check # Check if Rust code is formatted
 - [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
 - Install ESLint and Prettier extensions for VS Code
 
+## Release Strategy
+
+This project uses semantic versioning with automated releases:
+
+- **`main`**: Development branch with RC prereleases (e.g., `1.2.0-rc.1`)
+- **`release/production`**: Production releases (e.g., `1.2.0`)
+
+Releases are automatically generated using conventional commits:
+- `feat:` → minor version bump
+- `fix:` → patch version bump  
+- `BREAKING CHANGE:` → major version bump
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

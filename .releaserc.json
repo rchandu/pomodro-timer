@@ -3,7 +3,7 @@
   "branches": [
     "release/production",
     {
-      "name": "master",
+      "name": "main",
       "prerelease": "rc"
     }
   ],

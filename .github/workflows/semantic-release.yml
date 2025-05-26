@@ -3,12 +3,8 @@ name: Semantic Release
 on:
   push:
     branches:
-      - master
-      - release
-      - production
-      - next
-      - beta
-      - alpha
+      - main
+      - release/production
 
 jobs:
   release:
@@ -91,5 +87,5 @@ jobs:
           releaseName: 'Pomodoro Timer v${{ needs.release.outputs.new_release_version }}'
           releaseBody: ${{ needs.release.outputs.new_release_notes }}
           releaseDraft: false
-          prerelease: ${{ contains(github.ref_name, 'master') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') }}
+          prerelease: ${{ contains(github.ref_name, 'main') }}
           includeUpdaterJson: true
