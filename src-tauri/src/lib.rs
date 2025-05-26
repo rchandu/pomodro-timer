@@ -1,7 +1,8 @@
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Emitter, Manager, State};
+use tauri::{AppHandle, Emitter, State};
+use tauri_plugin_notification::NotificationExt;
 use tokio::time::sleep;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -64,7 +65,7 @@ impl TimerManager {
         *self.start_time.lock().unwrap() = Some(Instant::now());
         
         let status_clone = Arc::clone(&self.status);
-        let start_time_clone = Arc::clone(&self.start_time);
+        let _start_time_clone = Arc::clone(&self.start_time);
         
         tokio::spawn(async move {
             loop {
@@ -98,13 +99,12 @@ impl TimerManager {
                     
                     let _ = app_handle.emit("timer-completed", timer_type.clone());
                     
-                    if let Ok(notification) = tauri_plugin_notification::NotificationBuilder::new()
+                    let _ = app_handle
+                        .notification()
+                        .builder()
                         .title("Pomodoro Timer")
                         .body(&format!("{} completed!", timer_type_name))
-                        .build()
-                    {
-                        let _ = notification.show();
-                    }
+                        .show();
                     break;
                 }
             }
