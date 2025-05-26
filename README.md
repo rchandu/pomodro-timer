@@ -72,9 +72,43 @@ The project follows Tauri's architecture:
 - **Backend** (`src-tauri/src/`): Rust timer logic and system integration
 - **Configuration** (`src-tauri/tauri.conf.json`): App settings and permissions
 
+## Code Quality
+
+This project uses linting and formatting tools to maintain code quality:
+
+### TypeScript/SolidJS
+- **ESLint**: Linting with TypeScript and SolidJS rules
+- **Prettier**: Code formatting
+
+### Rust
+- **Clippy**: Advanced linting for Rust code
+- **rustfmt**: Code formatting for Rust
+
+### Available Scripts
+
+```bash
+# Check all code quality tools
+bun run check:all
+
+# Fix all auto-fixable issues
+bun run fix:all
+
+# TypeScript/Frontend linting
+bun run lint              # Check for lint issues
+bun run lint:fix          # Fix auto-fixable lint issues
+bun run format            # Format code with Prettier
+bun run format:check      # Check if code is formatted
+
+# Rust linting
+bun run lint:rust         # Run Clippy on Rust code
+bun run format:rust       # Format Rust code
+bun run format:rust:check # Check if Rust code is formatted
+```
+
 ### Recommended IDE Setup
 
 - [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+- Install ESLint and Prettier extensions for VS Code
 
 ## License
 
