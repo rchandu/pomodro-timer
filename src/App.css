@@ -34,11 +34,46 @@ body {
   text-align: center;
 }
 
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
 h1 {
-  margin: 0 0 20px 0;
+  margin: 0;
   font-size: 2rem;
   font-weight: 600;
   color: #34495e;
+}
+
+.settings-btn {
+  background: none;
+  border: 2px solid #bdc3c7;
+  color: #7f8c8d;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.settings-btn:hover {
+  background-color: #ecf0f1;
+  border-color: #95a5a6;
+  color: #2c3e50;
+  transform: rotate(90deg);
+}
+
+.settings-btn:active {
+  transform: rotate(90deg) scale(0.95);
 }
 
 .timer-display {
@@ -184,6 +219,17 @@ button:active:not(:disabled) {
   }
 
   h1 {
+    color: #ecf0f1;
+  }
+
+  .settings-btn {
+    border-color: #4a6374;
+    color: #bdc3c7;
+  }
+
+  .settings-btn:hover {
+    background-color: #34495e;
+    border-color: #5a748a;
     color: #ecf0f1;
   }
 

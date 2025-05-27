@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, State};
 use tauri_plugin_notification::NotificationExt;
 use tokio::time::sleep;
+use std::fs;
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TimerState {
@@ -28,30 +30,121 @@ pub struct TimerStatus {
     total_seconds: u64,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserPreferences {
+    work_duration_minutes: u64,
+    short_break_duration_minutes: u64,
+    long_break_duration_minutes: u64,
+    auto_start_breaks: bool,
+    auto_start_work: bool,
+    notification_sound: bool,
+}
+
+impl Default for UserPreferences {
+    fn default() -> Self {
+        Self {
+            work_duration_minutes: 25,
+            short_break_duration_minutes: 5,
+            long_break_duration_minutes: 15,
+            auto_start_breaks: false,
+            auto_start_work: false,
+            notification_sound: true,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct TimerManager {
     status: Arc<Mutex<TimerStatus>>,
     start_time: Arc<Mutex<Option<Instant>>>,
+    preferences: Arc<Mutex<UserPreferences>>,
 }
 
 impl TimerManager {
     pub fn new() -> Self {
+        let preferences = Self::load_preferences().unwrap_or_default();
+        let work_duration = preferences.work_duration_minutes * 60;
+        
         Self {
             status: Arc::new(Mutex::new(TimerStatus {
                 state: TimerState::Idle,
                 timer_type: TimerType::Work,
-                remaining_seconds: 25 * 60,
-                total_seconds: 25 * 60,
+                remaining_seconds: work_duration,
+                total_seconds: work_duration,
             })),
             start_time: Arc::new(Mutex::new(None)),
+            preferences: Arc::new(Mutex::new(preferences)),
         }
+    }
+
+    fn get_preferences_path() -> Result<PathBuf, Box<dyn std::error::Error>> {
+        let mut path = dirs::config_dir()
+            .ok_or("Could not get config directory")?;
+        path.push("pomodoro-timer");
+        fs::create_dir_all(&path)?;
+        path.push("preferences.json");
+        Ok(path)
+    }
+
+    fn load_preferences() -> Result<UserPreferences, Box<dyn std::error::Error>> {
+        let path = Self::get_preferences_path()?;
+        if path.exists() {
+            let content = fs::read_to_string(path)?;
+            let preferences: UserPreferences = serde_json::from_str(&content)?;
+            Ok(preferences)
+        } else {
+            Ok(UserPreferences::default())
+        }
+    }
+
+    fn save_preferences(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let path = Self::get_preferences_path()?;
+        let preferences = self.preferences.lock().unwrap();
+        let content = serde_json::to_string_pretty(&*preferences)?;
+        fs::write(path, content)?;
+        Ok(())
+    }
+
+    pub fn get_preferences(&self) -> UserPreferences {
+        self.preferences.lock().unwrap().clone()
+    }
+
+    pub fn update_preferences(&self, new_preferences: UserPreferences) -> Result<(), String> {
+        {
+            let mut preferences = self.preferences.lock().unwrap();
+            *preferences = new_preferences;
+        }
+        
+        // Reset timer if it's idle to use new durations
+        {
+            let mut status = self.status.lock().unwrap();
+            if matches!(status.state, TimerState::Idle) {
+                let prefs = self.preferences.lock().unwrap();
+                let duration = match status.timer_type {
+                    TimerType::Work => prefs.work_duration_minutes * 60,
+                    TimerType::ShortBreak => prefs.short_break_duration_minutes * 60,
+                    TimerType::LongBreak => prefs.long_break_duration_minutes * 60,
+                };
+                status.remaining_seconds = duration;
+                status.total_seconds = duration;
+            }
+        }
+        
+        self.save_preferences().map_err(|e| e.to_string())?;
+        Ok(())
     }
 
     pub fn get_status(&self) -> TimerStatus {
         self.status.lock().unwrap().clone()
     }
 
-    pub fn start_timer(&self, app_handle: AppHandle, timer_type: TimerType, duration_minutes: u64) {
+    pub fn start_timer(&self, app_handle: AppHandle, timer_type: TimerType) {
+        let preferences = self.preferences.lock().unwrap();
+        let duration_minutes = match timer_type {
+            TimerType::Work => preferences.work_duration_minutes,
+            TimerType::ShortBreak => preferences.short_break_duration_minutes,
+            TimerType::LongBreak => preferences.long_break_duration_minutes,
+        };
         let duration_seconds = duration_minutes * 60;
         
         {
@@ -128,6 +221,17 @@ impl TimerManager {
     pub fn stop_timer(&self) {
         let mut status = self.status.lock().unwrap();
         status.state = TimerState::Idle;
+        
+        // Reset remaining_seconds to the full duration based on timer type and user preferences
+        let preferences = self.preferences.lock().unwrap();
+        let full_duration = match status.timer_type {
+            TimerType::Work => preferences.work_duration_minutes * 60,
+            TimerType::ShortBreak => preferences.short_break_duration_minutes * 60,
+            TimerType::LongBreak => preferences.long_break_duration_minutes * 60,
+        };
+        status.remaining_seconds = full_duration;
+        status.total_seconds = full_duration;
+        
         *self.start_time.lock().unwrap() = None;
     }
 }
@@ -139,17 +243,27 @@ fn get_timer_status(timer_manager: State<TimerManager>) -> TimerStatus {
 
 #[tauri::command]
 fn start_work_timer(app_handle: AppHandle, timer_manager: State<TimerManager>) {
-    timer_manager.start_timer(app_handle, TimerType::Work, 25);
+    timer_manager.start_timer(app_handle, TimerType::Work);
 }
 
 #[tauri::command]
 fn start_short_break(app_handle: AppHandle, timer_manager: State<TimerManager>) {
-    timer_manager.start_timer(app_handle, TimerType::ShortBreak, 5);
+    timer_manager.start_timer(app_handle, TimerType::ShortBreak);
 }
 
 #[tauri::command]
 fn start_long_break(app_handle: AppHandle, timer_manager: State<TimerManager>) {
-    timer_manager.start_timer(app_handle, TimerType::LongBreak, 15);
+    timer_manager.start_timer(app_handle, TimerType::LongBreak);
+}
+
+#[tauri::command]
+fn get_preferences(timer_manager: State<TimerManager>) -> UserPreferences {
+    timer_manager.get_preferences()
+}
+
+#[tauri::command]
+fn update_preferences(timer_manager: State<TimerManager>, preferences: UserPreferences) -> Result<(), String> {
+    timer_manager.update_preferences(preferences)
 }
 
 #[tauri::command]
@@ -182,7 +296,9 @@ pub fn run() {
             start_long_break,
             pause_timer,
             resume_timer,
-            stop_timer
+            stop_timer,
+            get_preferences,
+            update_preferences
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
