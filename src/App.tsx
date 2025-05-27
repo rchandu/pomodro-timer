@@ -1,6 +1,7 @@
 import { createSignal, onMount } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import Settings, { UserPreferences } from "./Settings";
 import "./App.css";
 
 interface TimerStatus {
@@ -17,6 +18,17 @@ function App() {
     remaining_seconds: 25 * 60,
     total_seconds: 25 * 60,
   });
+
+  const [preferences, setPreferences] = createSignal<UserPreferences>({
+    work_duration_minutes: 25,
+    short_break_duration_minutes: 5,
+    long_break_duration_minutes: 15,
+    auto_start_breaks: false,
+    auto_start_work: false,
+    notification_sound: true,
+  });
+
+  const [isSettingsOpen, setIsSettingsOpen] = createSignal(false);
 
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -40,6 +52,28 @@ function App() {
     } catch (error) {
       console.error("Failed to get timer status:", error);
     }
+  };
+
+  const loadPreferences = async () => {
+    try {
+      const prefs = await invoke<UserPreferences>("get_preferences");
+      setPreferences(prefs);
+    } catch (error) {
+      console.error("Failed to load preferences:", error);
+    }
+  };
+
+  const openSettings = () => {
+    setIsSettingsOpen(true);
+  };
+
+  const closeSettings = () => {
+    setIsSettingsOpen(false);
+  };
+
+  const handlePreferencesUpdated = () => {
+    loadPreferences();
+    updateStatus();
   };
 
   const startWorkTimer = async () => {
@@ -98,6 +132,7 @@ function App() {
 
   onMount(async () => {
     await updateStatus();
+    await loadPreferences();
 
     await listen("timer-tick", (event) => {
       setTimerStatus(event.payload as TimerStatus);
@@ -110,7 +145,12 @@ function App() {
 
   return (
     <main class="container">
-      <h1>Pomodoro Timer</h1>
+      <div class="header">
+        <h1>Pomodoro Timer</h1>
+        <button class="settings-btn" onClick={openSettings} title="Settings">
+          ⚙️
+        </button>
+      </div>
 
       <div class="timer-display">
         <div class="timer-type">
@@ -161,21 +201,21 @@ function App() {
             disabled={timerStatus().state === "Running"}
             class="work-btn"
           >
-            Work (25m)
+            Work ({preferences().work_duration_minutes}m)
           </button>
           <button
             onClick={startShortBreak}
             disabled={timerStatus().state === "Running"}
             class="break-btn"
           >
-            Short Break (5m)
+            Short Break ({preferences().short_break_duration_minutes}m)
           </button>
           <button
             onClick={startLongBreak}
             disabled={timerStatus().state === "Running"}
             class="break-btn"
           >
-            Long Break (15m)
+            Long Break ({preferences().long_break_duration_minutes}m)
           </button>
         </div>
 
@@ -198,6 +238,12 @@ function App() {
           )}
         </div>
       </div>
+
+      <Settings
+        isOpen={isSettingsOpen()}
+        onClose={closeSettings}
+        onPreferencesUpdated={handlePreferencesUpdated}
+      />
     </main>
   );
 }

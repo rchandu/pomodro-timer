@@ -1,9 +1,10 @@
 import js from "@eslint/js";
 import ts from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
-import solid from "eslint-plugin-solid";
-import prettier from "eslint-plugin-prettier";
 import prettierConfig from "eslint-config-prettier";
+import prettier from "eslint-plugin-prettier";
+import solid from "eslint-plugin-solid";
+import globals from "globals";
 
 export default [
   js.configs.recommended,
@@ -18,6 +19,7 @@ export default [
           jsx: true,
         },
       },
+      globals: { ...globals.browser },
     },
     plugins: {
       "@typescript-eslint": ts,
